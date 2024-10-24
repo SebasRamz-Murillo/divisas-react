@@ -32,8 +32,8 @@ const CurrencyDashboard = () => {
   const { reportes, setReportes, guardarReporte } = useContext(ReportesContexto);
 
   const [amount, setAmount] = useState(1);
-  const [fromCurrency, setFromCurrency] = useState('MXN');
-  const [toCurrency, setToCurrency] = useState('USD');
+  const [fromCurrency, setFromCurrency] = useState('USD');
+  const [toCurrency, setToCurrency] = useState('MXN');
   const [chartData, setChartData] = useState([]);
   const [exchangeRates, setExchangeRates] = useState({});
   const [exchangeRatesHistory, setExchangeRatesHistory] = useState({});
@@ -47,7 +47,7 @@ const CurrencyDashboard = () => {
   const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
 
 
-  const fetchFlags = useCallback(async (currenciesList) => {
+  const fetchFlags = useCallback(async (currenciesList,latestRates) => {
     if (flagsLoaded || Object.keys(preferencias.map_banderas).length > 0) return;
 
     const flags = { ...preferencias.map_banderas };
@@ -81,10 +81,13 @@ const CurrencyDashboard = () => {
     }
 
     if (hasNewFlags) {
+      // usar exchangeRates para tasas de cambios
       cambiarPreferencias({
         map_banderas: flags,
-        lista_monedas: currenciesList.map(currency => currency.code)
-        
+        lista_monedas: currenciesList.map(currency => currency.code),
+        tasas_cambio: latestRates
+
+
       });
     }
     setFlagsLoaded(true);
@@ -108,7 +111,9 @@ const CurrencyDashboard = () => {
       setCurrencies(currenciesList);
 
       // Fetch flags separately
-      await fetchFlags(currenciesList);
+      await fetchFlags(currenciesList, latestRates);
+
+      
       
   
   
@@ -116,6 +121,8 @@ const CurrencyDashboard = () => {
     } catch (error) {
       console.error("Error fetching rates:", error);
     }
+
+   
   }, [preferencias.moneda, fetchFlags]);
 
   // Efecto inicial para cargar datos
@@ -158,7 +165,7 @@ const CurrencyDashboard = () => {
   const convert = useCallback((value, from, to) => {
     if (!exchangeRates[to] || !value) return 0;
     if (from === preferencias.moneda) {
-      return (value * (exchangeRates[to] || preferencias.tasas_cambio[to] || 1 )
+      return (value * ( exchangeRates[to] || preferencias.tasas_cambio[to] || 1 )
 
 
 
@@ -362,7 +369,7 @@ const CurrencyDashboard = () => {
             <Card sx={{ mb: 4, border: '1px solid black' }}>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
-                  Historial de Tipo de Cambio en base a la moneda base de las preferencias ({preferencias.moneda}/{fromCurrency})
+                  Historial de tipo de cambio en base a la moneda base de las preferencias ({preferencias.moneda}/{fromCurrency})
                 </Typography>
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={chartData}>
