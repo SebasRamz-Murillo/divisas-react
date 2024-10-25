@@ -2,14 +2,26 @@
   "name": "DivisasPatito",
   "short_name": "Pativisas",
   "description": "Aplicación de conversión de divisas",
-  "scope": "/",
-  "start_url": "/",
+  "scope": ".",
+  "start_url": ".",
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui"],
   "orientation": "portrait",
   "theme_color": "#000000",
   "background_color": "#ffffff",
   "categories": ["finance", "utilities"],
+  
+    "protocol_handlers": [
+      {
+        "protocol": "web+tea",
+        "url": "/tea?type=%s"
+      },
+      {
+        "protocol": "web+coffee",
+        "url": "/coffee?type=%s"
+      }
+    ],
+  
   "screenshots": [
     {
       "src": "/screenshots/app-screenshot.jpg",
