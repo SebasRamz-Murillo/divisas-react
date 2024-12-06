@@ -26,7 +26,7 @@ const AuthLayout = ({ children, title, subtitle }) => (
 
 const LoginForm = () => {
   const [formData, setFormData] = useState({
-    username: '',
+    email: '',
     password: ''
   });
   const { login } = useAuth();
@@ -54,9 +54,9 @@ const LoginForm = () => {
       <Card>
         <form onSubmit={handleSubmit} className="space-y-6 p-4">
           <Input
-            label="Usuario"
-            value={formData.username}
-            onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+            label="Email"
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             prefix={<User className="w-5 h-5 text-gray-400" />}
             required
           />
@@ -97,19 +97,15 @@ const SignUpForm = () => {
     email: '',
     username: '',
     password: '',
-    role_id: 3 // Asumiendo que 3 es el ID para clientes
+    role_id: 4 // Asumiendo que 3 es el ID para clientes
   });
   const [errors, setErrors] = useState({});
 
   const validateForm = () => {
     const newErrors = {};
     
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Las contraseñas no coinciden';
-    }
-    
-    if (formData.password.length < 6) {
-      newErrors.password = 'La contraseña debe tener al menos 6 caracteres';
+    if (formData.password.length < 8) {
+      newErrors.password = 'La contraseña debe tener al menos 8 caracteres';
     }
 
     setErrors(newErrors);
@@ -187,15 +183,6 @@ const SignUpForm = () => {
               required
             />
 
-            <Input
-              label="Confirmar Contraseña"
-              type="password"
-              value={formData.confirmPassword}
-              onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-              prefix={<Lock className="w-5 h-5 text-gray-400" />}
-              error={errors.confirmPassword}
-              required
-            />
 
             <Button type="submit" fullWidth>
               Crear Cuenta

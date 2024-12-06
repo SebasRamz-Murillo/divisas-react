@@ -33,6 +33,7 @@ export const authService = {
   async login(credentials) {
     try {
       const { data } = await api.post('/auth/login', credentials);
+      console.log(data);
       localStorage.setItem('barber_token', data.data.token);
       localStorage.setItem('barber_user', JSON.stringify(data.data.user));
       return data.data;
