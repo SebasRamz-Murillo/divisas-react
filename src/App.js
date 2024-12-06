@@ -13,6 +13,7 @@ import ClientAppointments from './pages/Client/ClientAppointments';
 import NewAppointment from './pages/Client/NewAppointment';
 import { ServicesProvider } from './context/ServiceContext';
 import { Toaster } from 'react-hot-toast';
+import { DashboardProvider } from './context/DashboardContext';
 
 const theme = createTheme({
   palette: {
@@ -90,10 +91,12 @@ function App() {
   return (
     <AuthProvider>
       <ServicesProvider>
+        <DashboardProvider>
         <ThemeProvider theme={theme}>
           <RouterProvider router={router} />
           <Toaster position="top-right" />
         </ThemeProvider>
+        </DashboardProvider>
       </ServicesProvider>
     </AuthProvider>
   );

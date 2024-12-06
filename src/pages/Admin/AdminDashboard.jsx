@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Card, LoadingSpinner } from '../../components/ui';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Calendar, Clock, Users, Scissors, TrendingUp, AlertCircle } from 'lucide-react';
+import { useDashboard } from '../../context/DashboardContext';
 
 const DashboardStats = ({ stats }) => {
   const StatCard = ({ title, value, icon: Icon, color }) => (
@@ -105,43 +106,10 @@ const Alerts = ({ alerts }) => (
 );
 
 const AdminDashboard = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [dashboardData, setDashboardData] = useState(null);
+  const { dashboardData, loading } = useDashboard();
 
-  // Simular datos para el ejemplo
-  React.useEffect(() => {
-    // Aquí iría la llamada a la API real
-    const mockData = {
-      stats: {
-        todayAppointments: 15,
-        activeBarbers: 5,
-        activeServices: 8
-      },
-      appointments: [
-        { id: 1, clientName: 'Juan Pérez', serviceName: 'Corte de Cabello', time: '10:00', barberName: 'Carlos' },
-        { id: 2, clientName: 'María García', serviceName: 'Barba', time: '11:30', barberName: 'Luis' },
-        { id: 3, clientName: 'Pedro López', serviceName: 'Corte + Barba', time: '14:00', barberName: 'Ana' },
-      ],
-      popularServices: [
-        { name: 'Corte de Cabello', appointments: 45 },
-        { name: 'Barba', appointments: 30 },
-        { name: 'Corte + Barba', appointments: 25 },
-        { name: 'Afeitado', appointments: 15 },
-      ],
-      alerts: [
-        { type: 'warning', message: 'Barbero Luis no ha confirmado su horario para mañana' },
-        { type: 'error', message: 'Servicio "Tinte de Cabello" sin barbero asignado' },
-        { type: 'info', message: 'Nueva actualización de precios pendiente de revisar' },
-      ]
-    };
 
-    setTimeout(() => {
-      setDashboardData(mockData);
-      setIsLoading(false);
-    }, 1000);
-  }, []);
-
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <LoadingSpinner size="lg" />

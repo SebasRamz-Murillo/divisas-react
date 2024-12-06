@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button, LoadingSpinner } from '../../components/ui';
 import { Calendar, Clock, User, Scissors, ArrowRight, Check } from 'lucide-react';
+import { useServices } from '../../context/ServiceContext';
 
 const StepIndicator = ({ currentStep }) => {
   const steps = [
@@ -44,33 +45,45 @@ const StepIndicator = ({ currentStep }) => {
     </div>
   );
 };
+const ServiceSelection = ({ selectedService, onSelect }) => {
+  const { services, loading } = useServices();
+   const activeServices = services.filter(service => service.active);
 
-const ServiceSelection = ({ services, selectedService, onSelect }) => (
-  <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-    {services.map(service => (
-      <Card
-        key={service.id}
-        className={`cursor-pointer transition-all ${
-          selectedService?.id === service.id
-            ? 'ring-2 ring-blue-500 bg-blue-50'
-            : 'hover:bg-gray-50'
-        }`}
-        onClick={() => onSelect(service)}
-      >
-        <div className="p-4 flex justify-between items-center">
-          <div>
-            <h3 className="font-medium">{service.name}</h3>
-            <p className="text-sm text-gray-600">{service.description}</p>
-            <p className="text-lg font-semibold mt-2">${service.price}</p>
+  if (loading) {
+    return (
+      <div className="flex justify-center py-8">
+        <LoadingSpinner size="md" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+      {activeServices.map(service => (
+        <Card
+          key={service.id}
+          className={`cursor-pointer transition-all ${
+            selectedService?.id === service.id
+              ? 'ring-2 ring-blue-500 bg-blue-50'
+              : 'hover:bg-gray-50'
+          }`}
+          onClick={() => onSelect(service)}
+        >
+          <div className="p-4 flex justify-between items-center">
+            <div>
+              <h3 className="font-medium">{service.name}</h3>
+              <p className="text-sm text-gray-600">{service.description}</p>
+              <p className="text-lg font-semibold mt-2">${service.price.toFixed(2)}</p>
+            </div>
+            {selectedService?.id === service.id && (
+              <Check className="w-6 h-6 text-blue-500" />
+            )}
           </div>
-          {selectedService?.id === service.id && (
-            <Check className="w-6 h-6 text-blue-500" />
-          )}
-        </div>
-      </Card>
-    ))}
-  </div>
-);
+        </Card>
+      ))}
+    </div>
+  );
+};
 
 const BarberSelection = ({ barbers, selectedBarber, onSelect }) => (
   <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
@@ -176,7 +189,6 @@ const ConfirmationStep = ({ service, barber, date, time }) => (
 const NewAppointment = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [services, setServices] = useState([]);
   const [barbers, setBarbers] = useState([]);
   const [selectedService, setSelectedService] = useState(null);
   const [selectedBarber, setSelectedBarber] = useState(null);
@@ -190,29 +202,8 @@ const NewAppointment = () => {
   ];
 
   useEffect(() => {
-    // Simular carga de datos
+    // Simulación de carga de barberos - esto debería venir de tu API
     setTimeout(() => {
-      setServices([
-        {
-          id: 1,
-          name: 'Corte de Cabello',
-          description: 'Corte profesional con acabado y estilo personalizado',
-          price: 25.00
-        },
-        {
-          id: 2,
-          name: 'Barba',
-          description: 'Recorte y perfilado de barba',
-          price: 15.00
-        },
-        {
-          id: 3,
-          name: 'Corte + Barba',
-          description: 'Combo de corte de cabello y arreglo de barba',
-          price: 35.00
-        }
-      ]);
-
       setBarbers([
         {
           id: 1,
@@ -233,7 +224,6 @@ const NewAppointment = () => {
           available: false
         }
       ]);
-
       setIsLoading(false);
     }, 1000);
   }, []);
@@ -242,7 +232,7 @@ const NewAppointment = () => {
     if (currentStep < 3) {
       setCurrentStep(currentStep + 1);
     } else {
-      // Aquí iría la lógica para crear la cita
+      // Aquí iría la lógica para crear la cita usando appointmentsApi
       console.log('Crear cita', {
         service: selectedService,
         barber: selectedBarber,
@@ -278,12 +268,12 @@ const NewAppointment = () => {
       <div className="min-h-[400px]">
         {currentStep === 0 && (
           <ServiceSelection
-            services={services}
             selectedService={selectedService}
             onSelect={setSelectedService}
           />
         )}
 
+        {/* Los otros pasos permanecen iguales */}
         {currentStep === 1 && (
           <BarberSelection
             barbers={barbers}
