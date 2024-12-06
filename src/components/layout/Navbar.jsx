@@ -2,32 +2,33 @@ import React from 'react';
 
 const Navbar = ({ user, onLogout }) => {
   const roleLinks = {
-    ADMIN: [
+    "2": [
       { name: 'Dashboard', href: '/dashboard' },
       { name: 'Barberos', href: '/barbers' },
       { name: 'Servicios', href: '/services' }
     ],
-    BARBER: [
+    "3": [
       { name: 'Mis Citas', href: '/appointments' },
       { name: 'Mi Horario', href: '/schedule' }
     ],
-    CLIENT: [
+    "4": [
       { name: 'Nueva Cita', href: '/new-appointment' },
       { name: 'Mis Citas', href: '/my-appointments' }
     ]
   };
 
   const getNavLinks = () => {
-    if (!user || !user.role || !roleLinks[user.role.name]) {
-      console.log('No user or role found');
-      return null;
-    }
+    const role = localStorage.getItem('barber_role');
+    if (!role) return null;
 
-    return roleLinks[user.role.name].map(link => (
-      <a key={link.href} href={link.href} className="text-gray-600 hover:text-gray-900">
+    return roleLinks[role].map((link, index) => (
+      <a
+        key={index}
+        href={link.href}
+        className="text-gray-600 hover:text-gray-900"
+      >
         {link.name}
       </a>
-
     ));
   };
 
