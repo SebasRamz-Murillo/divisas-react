@@ -12,14 +12,12 @@ export const ServicesProvider = ({ children }) => {
   const { user } = useAuth();
 
   const loadServices = async () => {
-    if (!user) return;
     try {
       setLoading(true);
       const data = await servicesApi.getAll();
       setServices(data);
     } catch (error) {
       toast.error('Error al cargar los servicios');
-      console.error(error);
     } finally {
       setLoading(false);
     }

@@ -3,10 +3,22 @@ import { Navigate, Outlet, useNavigate } from 'react-router-dom';
 import { Navbar } from '../ui';
 import { useAuth } from '../../context/AuthContext';
 const ProtectedLayout = () => {
-  const { user, logout } = useAuth();
+  var { user, logout, setUser } = useAuth();
   const navigate = useNavigate();
 
   if (!user) {
+    try {
+      const userData = localStorage.getItem('barber_user');
+      if (userData) {
+        setUser(userData);
+        return;
+      }
+    }
+    catch (error) {
+      console.error('Error while parsing user data from local storage');
+    }
+
+    console.error('User is not logged in');
     return <Navigate to="/" replace />;
   }
 

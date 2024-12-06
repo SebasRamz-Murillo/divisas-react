@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Card, Button, Input, LoadingSpinner } from '../../components/ui';
 import { Plus, Edit, Trash2, Check, X } from 'lucide-react';
+import { useBarbers } from '../../context/BarbersContext';
 
 const BarberDialog = ({ barber, onClose, onSave }) => {
   const [formData, setFormData] = useState(
@@ -137,53 +138,22 @@ const BarberCard = ({ barber, onEdit, onToggleActive, onDelete }) => (
 );
 
 const BarbersPage = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [barbers, setBarbers] = useState([]);
+  const { barbers, loading, createBarber, updateBarber, deleteBarber, toggleBarberStatus } = useBarbers();
   const [showDialog, setShowDialog] = useState(false);
   const [selectedBarber, setSelectedBarber] = useState(null);
 
-  React.useEffect(() => {
-    // Simular carga de datos
-    setTimeout(() => {
-      setBarbers([
-        {
-          id: 1,
-          name: 'Carlos',
-          lastname: 'García',
-          email: 'carlos@barbershop.com',
-          username: 'carlos.garcia',
-          active: true
-        },
-        {
-          id: 2,
-          name: 'Ana',
-          lastname: 'Martínez',
-          email: 'ana@barbershop.com',
-          username: 'ana.martinez',
-          active: true
-        },
-        {
-          id: 3,
-          name: 'Luis',
-          lastname: 'Rodríguez',
-          email: 'luis@barbershop.com',
-          username: 'luis.rodriguez',
-          active: false
-        }
-      ]);
-      setIsLoading(false);
-    }, 1000);
-  }, []);
-
-  const handleSave = (barberData) => {
-    if (selectedBarber) {
-      // Actualizar barbero existente
-      setBarbers(barbers.map(b => 
-        b.id === selectedBarber.id ? { ...b, ...barberData } : b
-      ));
-    } else {
-      // Agregar nuevo barbero
-      setBarbers([...barbers, { ...barberData, id: Date.now() }]);
+  const handleSave = async (barberData) => {
+    console.log('Saving:', barberData); 
+    try {
+      if (selectedBarber) {
+        await updateBarber(selectedBarber.id, barberData);
+      } else {
+        await createBarber(barberData);
+      }
+      setShowDialog(false);
+      setSelectedBarber(null);
+    } catch (error) {
+      console.error('Error al guardar:', error);
     }
   };
 
@@ -192,19 +162,17 @@ const BarbersPage = () => {
     setShowDialog(true);
   };
 
-  const handleToggleActive = (barberId) => {
-    setBarbers(barbers.map(b =>
-      b.id === barberId ? { ...b, active: !b.active } : b
-    ));
-  };
-
-  const handleDelete = (barberId) => {
+  const handleDelete = async (barberId) => {
     if (window.confirm('¿Estás seguro de que deseas eliminar este barbero?')) {
-      setBarbers(barbers.filter(b => b.id !== barberId));
+      try {
+        await deleteBarber(barberId);
+      } catch (error) {
+        console.error('Error al eliminar:', error);
+      }
     }
   };
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="flex justify-center items-center h-[calc(100vh-4rem)]">
         <LoadingSpinner size="lg" />
@@ -233,7 +201,7 @@ const BarbersPage = () => {
             key={barber.id}
             barber={barber}
             onEdit={handleEdit}
-            onToggleActive={handleToggleActive}
+            onToggleActive={toggleBarberStatus}
             onDelete={handleDelete}
           />
         ))}

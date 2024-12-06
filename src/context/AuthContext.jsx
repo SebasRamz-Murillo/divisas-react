@@ -11,8 +11,11 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const initAuth = async () => {
       try {
+        console.log('Checking if user is authenticated');
         if (authService.isAuthenticated()) {
-          const userData = await authService.getProfile();
+          console.log('User is authenticated');
+          const userData = await authService.getUser();
+          console.log('User data:', userData);
           setUser(userData);
         }
       } catch (error) {
@@ -26,10 +29,11 @@ export const AuthProvider = ({ children }) => {
 
   const value = {
     user,
+    setUser,
     loading,
     login: async (credentials) => {
       const response = await authService.login(credentials);
-      setUser(response.user);
+      setUser(user);
       return response;
     },
     register: async (userData) => {
