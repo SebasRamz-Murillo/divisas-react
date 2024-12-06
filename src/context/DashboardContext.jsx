@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { appointmentsApi, servicesApi } from '../services/api';
 import { toast } from 'react-hot-toast';
 import { useAuth } from './AuthContext';
+import { barbersApi } from '../services/api';
 
 const DashboardContext = createContext(null);
 
@@ -16,6 +17,7 @@ export const DashboardProvider = ({ children }) => {
     try {
       setLoading(true);
         const appointments = await appointmentsApi.getAll();
+        const barbers = await barbersApi.getAll();
         const services = await servicesApi.getAll();
         const today = new Date().toISOString().split('T')[0];
       
@@ -24,10 +26,7 @@ export const DashboardProvider = ({ children }) => {
           todayAppointments: appointments.filter(apt => 
             apt.appointment_date.startsWith(today)
           ).length,
-          activeBarbers: appointments.reduce((acc, apt) => {
-            if (!acc.includes(apt.user_barber_id)) acc.push(apt.user_barber_id);
-            return acc;
-          }, []).length,
+          activeBarbers: barbers.filter(barber => barber.active).length,
           activeServices: services.filter(service => service.active).length
         },
         appointments: appointments

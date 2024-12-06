@@ -29,14 +29,38 @@ const LoginForm = () => {
     email: '',
     password: ''
   });
-  const { login } = useAuth();
+  const { login} = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await login(formData);
-      navigate('/dashboard');
+      const role = localStorage.getItem('barber_role');
+      console.log('Role:', role);
+      console.log(role);
+      if(!role){
+        navigate('/');
+      }
+
+      switch(role){
+        case "2":
+          console.log('Entro a admin');
+          navigate('/dashboard');
+          break;
+        case "3":
+          navigate('/appointments');
+          break;
+        case "4":
+          navigate('/my-appointments');
+          break;
+
+        default:
+          console.log('Entro a default');
+          console.log('Role:', role);
+          navigate('/');
+
+      }
     } catch (error) {
       // Manejar error
       console.error('Error:', error);

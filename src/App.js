@@ -15,6 +15,7 @@ import { ServicesProvider } from './context/ServiceContext';
 import { Toaster } from 'react-hot-toast';
 import { DashboardProvider } from './context/DashboardContext';
 import { BarbersProvider } from './context/BarbersContext';
+import { AppointmentsProvider } from './context/AppointmentsContext';
 
 
 const theme = createTheme({
@@ -93,6 +94,8 @@ function App() {
   return (
     <AuthProvider>
       <ServicesProvider>
+      <AppointmentsProvider>
+
         <BarbersProvider>
         <DashboardProvider>
         <ThemeProvider theme={theme}>
@@ -101,6 +104,7 @@ function App() {
         </ThemeProvider>
         </DashboardProvider>
         </BarbersProvider>
+      </AppointmentsProvider>
       </ServicesProvider>
     </AuthProvider>
   );

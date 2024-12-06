@@ -82,6 +82,7 @@ export const authService = {
       localStorage.setItem('barber_token', data.data.token);
       const user = await this.getProfile();
       localStorage.setItem('barber_user', JSON.stringify(user));
+      localStorage.setItem('barber_role', user.role.id);
       cacheManager.clearCache(); // Clear all cache on login
       return user;
     } catch (error) {

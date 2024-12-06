@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, Button, LoadingSpinner } from '../../components/ui';
 import { Calendar, Clock, User, Scissors, ArrowRight, Check } from 'lucide-react';
 import { useServices } from '../../context/ServiceContext';
+import { useAppointments } from '../../context/AppointmentsContext';
 
 const StepIndicator = ({ currentStep }) => {
   const steps = [
@@ -117,7 +118,7 @@ const BarberSelection = ({ barbers, selectedBarber, onSelect }) => (
   </div>
 );
 
-const DateTimeSelection = ({ selectedDate, selectedTime, availableTimes, onDateSelect, onTimeSelect }) => (
+const DateTimeSelection = ({ selectedDate, selectedTime, availableTimes, onDateSelect, onTimeSelect, checkAvailability, selectedBarber}) => (
   <div className="space-y-6">
     <div>
       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -133,27 +134,35 @@ const DateTimeSelection = ({ selectedDate, selectedTime, availableTimes, onDateS
     </div>
 
     {selectedDate && (
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Horarios disponibles
-        </label>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-          {availableTimes.map((time) => (
-            <button
-              key={time}
-              onClick={() => onTimeSelect(time)}
-              className={`p-2 text-center rounded-md transition-colors ${
-                selectedTime === time
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-              }`}
-            >
-              {time}
-            </button>
-          ))}
-        </div>
-      </div>
-    )}
+  <div>
+    <label className="block text-sm font-medium text-gray-700 mb-2">
+      Horarios disponibles
+    </label>
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+      {availableTimes.map(async (time) => {
+        const isAvailable = await checkAvailability(
+          selectedBarber.id,
+          selectedDate,
+          time
+        );
+        
+        return isAvailable ? (
+          <button
+            key={time}
+            onClick={() => onTimeSelect(time)}
+            className={`p-2 text-center rounded-md transition-colors ${
+              selectedTime === time
+                ? 'bg-blue-500 text-white'
+                : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+            }`}
+          >
+            {time}
+          </button>
+        ) : null;
+      })}
+    </div>
+  </div>
+)}
   </div>
 );
 
@@ -194,7 +203,7 @@ const NewAppointment = () => {
   const [selectedBarber, setSelectedBarber] = useState(null);
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
-  
+  const { createAppointment, checkAvailability } = useAppointments();
   const availableTimes = [
     '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
     '12:00', '12:30', '14:00', '14:30', '15:00', '15:30',
@@ -228,19 +237,32 @@ const NewAppointment = () => {
     }, 1000);
   }, []);
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep < 3) {
       setCurrentStep(currentStep + 1);
     } else {
-      // Aquí iría la lógica para crear la cita usando appointmentsApi
-      console.log('Crear cita', {
-        service: selectedService,
-        barber: selectedBarber,
-        date: selectedDate,
-        time: selectedTime
-      });
+      try {
+        await createAppointment({
+          user_barber_id: selectedBarber.id,
+          service_id: selectedService.id,
+          appointment_date: `${selectedDate} ${selectedTime}`
+        });
+
+
+        
+        
+        
+
+        
+
+      } catch (error) {
+        // El manejo de errores ya está incluido en el contexto
+        console.error(error);
+      }
     }
   };
+  
+  
 
   const handleBack = () => {
     if (currentStep > 0) {
@@ -289,6 +311,8 @@ const NewAppointment = () => {
             availableTimes={availableTimes}
             onDateSelect={setSelectedDate}
             onTimeSelect={setSelectedTime}
+            checkAvailability={checkAvailability}
+            selectedBarber={selectedBarber}
           />
         )}
 
